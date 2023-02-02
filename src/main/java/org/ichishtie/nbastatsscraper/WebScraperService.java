@@ -44,7 +44,7 @@ public class WebScraperService {
 
         System.out.println("Instantiating driver");
         try {
-            driver = new RemoteWebDriver(new URL("http://172.17.0.4:4444/wd/hub"),
+            driver = new RemoteWebDriver(new URL("http://localhost:4444/wd/hub"),
                     options);
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
