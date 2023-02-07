@@ -22,15 +22,15 @@ public class WebScraperService {
 
     @Autowired
     public WebScraperService(PlayerStatsService playerStatsService) {
-        System.out.println("Inside constructor...");
+        System.out.println("Inside constructor");
         this.playerStatsService = playerStatsService;
 
-        System.out.println("Constructor finished...");
+        System.out.println("Constructor finished");
     }
 
     @Scheduled(fixedDelay = 10, timeUnit = TimeUnit.MINUTES)
     public void scrapePlayerStats() {
-        System.out.println("Starting player stats scraping...");
+        System.out.println("Starting player stats scraping");
 
         WebDriver driver = null;
 
@@ -63,13 +63,13 @@ public class WebScraperService {
 
             System.out.println("Getting https://www.nba.com/stats/leaders");
             driver.get("https://www.nba.com/stats/leaders");
-            System.out.println("Got driver successfully");
+            System.out.println("Success");
 
-            // Show totals
+            System.out.println("Show totals");
             new Select(driver.findElements(By.className("DropDown_select__4pIg9")).get(2))
                     .selectByVisibleText("Totals");
 
-            // Show all rows
+            System.out.println("Show all rows");
             new Select(driver.findElement(By.className("Crom_cromSetting__Tqtiq"))
                     .findElement(By.className("DropDown_select__4pIg9")))
                     .selectByVisibleText("All");
@@ -146,11 +146,11 @@ public class WebScraperService {
                             freeThrowPercentage, offensiveRebounds, defensiveRebounds, rebounds, assists, steals, blocks, turnovers,
                             personalFouls, efficiency, assistsToTurnovers, stealsToTurnovers);
 
-                    System.out.printf("Saving stats for %s...\n", name);
+                    System.out.printf("Saving stats for %s\n", name);
                     playerStatsService.save(stats);
                     System.out.printf("Saved stats for %s\n", name);
                 } catch (NumberFormatException e) {
-                    System.out.println("Invalid data received!\nContinuing scraping...");
+                    System.out.println("Invalid data received!\nContinuing scraping");
                 }
             });
         } finally {
