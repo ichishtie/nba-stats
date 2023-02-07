@@ -1,6 +1,7 @@
 package org.ichishtie.nbastatsscraper;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.SessionNotCreatedException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -31,7 +32,7 @@ public class WebScraperService {
     public void scrapePlayerStats() {
         System.out.println("Starting player stats scraping...");
 
-        WebDriver driver;
+        WebDriver driver = null;
 
         ChromeOptions options = new ChromeOptions();
         options.addArguments("start-maximized"); // open Browser in maximized mode
@@ -42,17 +43,25 @@ public class WebScraperService {
         options.addArguments("--no-sandbox"); // bypass OS security model
         options.addArguments("--headless"); // run in headless mode
 
-        System.out.println("Instantiating driver");
         try {
-            driver = new RemoteWebDriver(new URL("http://localhost:4444/wd/hub"),
-                    options);
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
-        }
-        System.out.println("Driver instantiated");
+            System.out.println("Instantiating driver");
+            int retryCount = 1;
+            while (driver == null && retryCount <= 10) {
+                System.out.printf("Try #%d\n", retryCount);
+                try {
+                    driver = new RemoteWebDriver(new URL("http://localhost:4444/wd/hub"),
+                            options);
+                } catch (SessionNotCreatedException e) {
+                    System.out.println(e.getLocalizedMessage());
+                    retryCount++;
+                } catch (MalformedURLException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            assert driver != null : "Driver is null";
+            System.out.println("Driver instantiated");
 
-        try {
-            System.out.println("Getting driver");
+            System.out.println("Getting https://www.nba.com/stats/leaders");
             driver.get("https://www.nba.com/stats/leaders");
             System.out.println("Got driver successfully");
 
@@ -145,8 +154,8 @@ public class WebScraperService {
                 }
             });
         } finally {
-            System.out.println("Quitting driver...");
-            driver.quit();
+            System.out.println("Quitting driver");
+            if (driver != null) driver.quit();
         }
 
         System.out.println("Scraping completed!");
